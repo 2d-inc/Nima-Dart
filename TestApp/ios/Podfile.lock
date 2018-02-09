@@ -1,0 +1,22 @@
+PODS:
+  - Flutter (1.0.0)
+  - path_provider (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `/Users/luigirosso/Projects/flutter/bin/cache/artifacts/engine/ios`)
+  - path_provider (from `/Users/luigirosso/.pub-cache/hosted/pub.dartlang.org/path_provider-0.3.1/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: /Users/luigirosso/Projects/flutter/bin/cache/artifacts/engine/ios
+  path_provider:
+    :path: /Users/luigirosso/.pub-cache/hosted/pub.dartlang.org/path_provider-0.3.1/ios
+
+SPEC CHECKSUMS:
+  Flutter: 7eb41cd1fd524b90d7f22bceb20da2c39338b089
+  path_provider: 09407919825bfe3c2deae39453b7a5b44f467873
+
+PODFILE CHECKSUM: c6c865faff84807a5d35de69eb2cdbdc36b99e15
+
+COCOAPODS: 1.4.0
