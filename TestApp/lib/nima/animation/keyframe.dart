@@ -751,3 +751,22 @@ class KeyFrameActiveChild extends KeyFrame
 		// soloNode.activeChildIndex = _value;
 	}
 }
+
+class KeyFrameSequence extends KeyFrameNumeric
+{
+	static KeyFrame read(BinaryReader reader, ActorComponent component)
+	{
+		KeyFrameSequence frame = new KeyFrameSequence();
+		if(KeyFrameNumeric.read(reader, frame))
+		{
+			return frame;
+		}
+		return null;
+	}
+
+	void setValue(ActorComponent component, double value, double mix)
+	{
+		// ActorNode node = component as ActorNode;
+		// node.rotation = node.rotation * (1.0 - mix) + value * mix;
+	}
+}

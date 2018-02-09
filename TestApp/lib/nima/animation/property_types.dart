@@ -19,5 +19,6 @@ class PropertyTypes
 	static const int StringProperty = 14;
 	static const int BooleanProperty = 15;
 	static const int CollisionEnabled = 16;
+	static const int Sequence = 17;
 	static const int ActiveChildIndex = 18;
 }

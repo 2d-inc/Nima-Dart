@@ -96,6 +96,9 @@ class PropertyAnimation
 				case PropertyTypes.ActiveChildIndex:
 					keyFrameReader = KeyFrameActiveChild.read;
 					break;
+				case PropertyTypes.Sequence:
+					keyFrameReader = KeyFrameSequence.read;
+					break;
 			}
 
 			int keyFrameCount = propertyBlock.readUint16();

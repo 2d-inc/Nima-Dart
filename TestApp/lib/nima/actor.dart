@@ -4,6 +4,9 @@ import "dart:async";
 import "actor_component.dart";
 import "actor_event.dart";
 import "actor_node.dart";
+import "actor_bone.dart";
+import "actor_jelly_bone.dart";
+import "jelly_component.dart";
 import "dependency_sorter.dart";
 import "actor_image.dart";
 import "animation/actor_animation.dart";
@@ -432,7 +435,7 @@ class Actor
 					break;
 
 				case BlockTypes.ActorBone:
-					//component = ActorBone.Read(this, nodeBlock);
+					component = ActorBone.read(this, nodeBlock, null);
 					break;
 
 				case BlockTypes.ActorRootBone:
@@ -497,11 +500,11 @@ class Actor
 					break;
 
 				case BlockTypes.ActorJellyBone:
-					//component = ActorJellyBone.Read(this, nodeBlock);
+					component = ActorJellyBone.read(this, nodeBlock, null);
 					break;
 
 				case BlockTypes.JellyComponent:
-					//component = JellyComponent.Read(this, nodeBlock);
+					component = JellyComponent.read(this, nodeBlock, null);
 					break;
 
 				case BlockTypes.ActorIKConstraint:
@@ -606,6 +609,6 @@ class Actor
 					_animations[animationIndex++] = anim;
 					break;
 			}
-		};
+		}
 	}
 }
