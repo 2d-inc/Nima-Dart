@@ -1,12 +1,12 @@
-import "package:flutter/services.dart" show rootBundle;
 import "dart:typed_data";
-import "dart:async";
 import "actor_component.dart";
 import "actor_event.dart";
 import "actor_node.dart";
 import "actor_bone.dart";
+import "actor_root_bone.dart";
 import "actor_jelly_bone.dart";
 import "jelly_component.dart";
+import "actor_ik_constraint.dart";
 import "dependency_sorter.dart";
 import "actor_image.dart";
 import "animation/actor_animation.dart";
@@ -36,6 +36,7 @@ class BlockTypes
 	static const int ActorColliderCircle = 19;
 	static const int ActorColliderPolygon = 20;
 	static const int ActorColliderLine = 21;
+	static const int ActorImageSequence = 22;
 	static const int ActorNodeSolo = 23;
 	static const int JellyComponent = 28;
 	static const int ActorJellyBone = 29;
@@ -374,23 +375,21 @@ class Actor
 		}
 	}
 
-	Future<Error> load(String filename) async
+	void load(ByteData data)
 	{
-		print("Loading actor filename $filename");
-		ByteData data = await rootBundle.load(filename + ".nima");
 		BlockReader reader = new BlockReader(data);
 
 		int N = reader.readUint8();
 		int I = reader.readUint8();
 		int M = reader.readUint8();
 		int A = reader.readUint8();
-		int version = reader.readUint32();
+		_version = reader.readUint32();
 
 		if(N != 78 || I != 73 || M != 77 || A != 65)
 		{
 			return throw new UnsupportedError("Not a valid Nima file.");
 		}
-		if(version < 12)
+		if(_version < 12)
 		{
 			return throw new UnsupportedError("Nima file is too old.");
 		}
@@ -410,8 +409,6 @@ class Actor
 					break;
 			}
 		}
-
-		return null;
 	}
 
 	void readComponentsBlock(BlockReader block)
@@ -439,7 +436,11 @@ class Actor
 					break;
 
 				case BlockTypes.ActorRootBone:
-					//component = ActorRootBone.Read(this, nodeBlock);
+					component = ActorRootBone.read(this, nodeBlock, null);
+					break;
+
+				case BlockTypes.ActorImageSequence:
+					// TODO: Image sequence.
 					break;
 
 				case BlockTypes.ActorImage:
@@ -508,7 +509,7 @@ class Actor
 					break;
 
 				case BlockTypes.ActorIKConstraint:
-					//component = ActorIKConstraint.Read(this, nodeBlock);
+					component = ActorIKConstraint.read(this, nodeBlock, null);
 					break;
 
 				case BlockTypes.ActorDistanceConstraint:
@@ -531,6 +532,7 @@ class Actor
 					//component = ActorTransformConstraint.Read(this, nodeBlock);
 					break;
 			}
+
 			if(component is ActorNode)
 			{
 				_nodeCount++;

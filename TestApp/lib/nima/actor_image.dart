@@ -355,6 +355,11 @@ class ActorImage extends ActorNode
 		return new Float32List(_vertexCount * 2);
 	}
 
+	Float32List makeVertexUVBuffer()
+	{
+		return new Float32List(_vertexCount * 2);
+	}
+
 	void transformDeformVertices(Mat2D wt)
 	{
 		if(_animationDeformedVertices == null)
@@ -374,6 +379,21 @@ class ActorImage extends ActorNode
 			fv[vidx+1] = wt[1] * x + wt[3] * y + wt[5];
 
 			vidx += 2;
+		}
+	}
+
+	void updateVertexUVBuffer(Float32List buffer)
+	{
+		int readIdx = vertexUVOffset;
+		int writeIdx = 0;
+		int stride = vertexStride;
+
+		Float32List v = _vertices;
+		for(int i = 0; i < _vertexCount; i++)
+		{
+			buffer[writeIdx++] = v[readIdx];
+			buffer[writeIdx++] = v[readIdx+1];
+			readIdx += stride;
 		}
 	}
 
