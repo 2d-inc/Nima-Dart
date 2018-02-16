@@ -440,7 +440,10 @@ class Actor
 					break;
 
 				case BlockTypes.ActorImageSequence:
-					// TODO: Image sequence.
+					_imageNodeCount++;
+					component = ActorImage.readSequence(this, nodeBlock, makeImageNode());
+					ActorImage ai = component as ActorImage;
+					_maxTextureIndex = ai.sequenceFrames.last.atlasIndex; // Last atlasIndex is the biggest
 					break;
 
 				case BlockTypes.ActorImage:

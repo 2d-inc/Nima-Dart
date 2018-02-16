@@ -23,6 +23,29 @@ class BoneConnection
 	Mat2D inverseBind = new Mat2D();
 }
 
+class SequenceFrame
+{
+	int _atlasIndex;
+	int _offset;
+	SequenceFrame(this._atlasIndex, this._offset);
+
+	@override
+	String toString()
+	{
+		return "(" + this._atlasIndex.toString() + ", " + this._offset.toString() + ")";
+	}
+
+	int get atlasIndex
+	{
+		return this._atlasIndex;
+	}
+
+	int get offset
+	{
+		return this._offset;
+	}
+}
+
 class ActorImage extends ActorNode
 {
 	// Editor set draw index.
@@ -40,6 +63,30 @@ class ActorImage extends ActorNode
 
 	List<BoneConnection> _boneConnections;
 	Float32List _boneMatrices;
+
+	List<SequenceFrame> _sequenceFrames;
+	Float32List _sequenceUVs;
+	int _sequenceFrame = 0;
+
+	int get sequenceFrame
+	{
+		return this._sequenceFrame;
+	}
+
+	Float32List get sequenceUVs
+	{
+	  return this._sequenceUVs;
+	}
+
+	List<SequenceFrame> get sequenceFrames
+	{
+	  return this._sequenceFrames;
+	}
+
+	set sequenceFrame(int value)
+	{
+	  this._sequenceFrame = value;
+	}
 
 	int get connectedBoneCount
 	{
@@ -281,6 +328,47 @@ class ActorImage extends ActorNode
 			node._triangles = new Uint16List(numTris*3);
 			node._triangleCount = numTris;
 			reader.readUint16Array(node._triangles, node._triangles.length, 0);
+		}
+
+		return node;
+	}
+
+	static ActorImage readSequence(Actor actor, BinaryReader reader, ActorImage node)
+	{
+		ActorImage.read(actor, reader, node);
+
+		if(node._textureIndex != -1)
+		{
+			int frameAssetCount = reader.readUint16();
+			// node._sequenceFrames = [];
+			Float32List uvs = new Float32List(node._vertexCount*2*frameAssetCount);
+			int uvStride = node._vertexCount * 2;
+			node._sequenceUVs = uvs;
+			SequenceFrame firstFrame = new SequenceFrame(node._textureIndex, 0);
+			node._sequenceFrames = new List<SequenceFrame>();
+			node._sequenceFrames.add(firstFrame);
+			int readIdx = 2;
+			int writeIdx = 0;
+			int vertexStride = 4;
+			if(node._boneConnections != null && node._boneConnections.length > 0)
+			{
+				vertexStride = 12;
+			}
+			for(int i = 0; i < node._vertexCount; i++)
+			{
+				uvs[writeIdx++] = node._vertices[readIdx];
+				uvs[writeIdx++] = node._vertices[readIdx+1];
+				readIdx += vertexStride;
+			}
+
+			int offset = uvStride;
+			for(int i = 1; i < frameAssetCount; i++)
+			{
+				SequenceFrame frame = new SequenceFrame(reader.readUint8(), offset*4);
+				node._sequenceFrames.add(frame);
+				reader.readFloat32Array(uvs, uvStride, offset);
+				offset += uvStride;
+			}
 		}
 
 		return node;

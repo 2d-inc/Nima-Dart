@@ -24,7 +24,8 @@ void beginFrame(Duration timeStamp)
 	actor.advance(elapsed);
 
 	// Harcoding animation time as updating the nima file seemed to still use the previously cached one. Or I copied the wrong file with the old 10 seconds in it :)
-	double duration = 13.0/24.0;
+	// double duration = 13.0/24.0;
+	double duration = animation.duration;
 	animation.apply(t%duration/*animation.duration*/, actor, 1.0);
 
 	final ui.Rect paintBounds = ui.Offset.zero & (ui.window.physicalSize / ui.window.devicePixelRatio);
@@ -75,10 +76,11 @@ void beginFrame(Duration timeStamp)
 void main() 
 {
 	actor = new FlutterActor();
-	actor.loadFromBundle("assets/Wolf").then(
+	actor.loadFromBundle("assets/sequence").then(
 		(bool success)
 		{
-			animation = actor.getAnimation("Run");
+			// animation = actor.getAnimation("Run");
+			animation = actor.getAnimation("Sequence");
 			ui.window.onBeginFrame = beginFrame;
 			ui.window.scheduleFrame();
 		}

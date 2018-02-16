@@ -13,6 +13,22 @@ class FlutterActorImage extends ActorImage
 	ui.Vertices _canvasVertices;
 	Int32List _indices;
 
+	final Float64List _identityMatrix = new Float64List.fromList(<double>[
+			1.0, 0.0, 0.0, 0.0,
+			0.0, 1.0, 0.0, 0.0,
+			0.0, 0.0, 1.0, 0.0,
+			0.0, 0.0, 0.0, 1.0
+		]);
+
+	set textureIndex(int value)
+	{
+		if(this.textureIndex != value)
+		{
+			_paint = new ui.Paint()..shader = new ui.ImageShader((actor as FlutterActor).images[textureIndex], ui.TileMode.clamp, ui.TileMode.clamp, _identityMatrix);
+			_paint.isAntiAlias = true;
+		}
+	}
+
 	void init()
 	{
 		if(triangles == null)
@@ -35,14 +51,14 @@ class FlutterActorImage extends ActorImage
 			_uvBuffer[idx+1] = _uvBuffer[idx+1]*image.height;
 			idx += 2;
 		}
-		final Float64List identityMatrix = new Float64List.fromList(<double>[
-			1.0, 0.0, 0.0, 0.0,
-			0.0, 1.0, 0.0, 0.0,
-			0.0, 0.0, 1.0, 0.0,
-			0.0, 0.0, 0.0, 1.0
-		]);
 
-		_paint = new ui.Paint()..shader = new ui.ImageShader((actor as FlutterActor).images[textureIndex], ui.TileMode.clamp, ui.TileMode.clamp, identityMatrix);
+		for(int i = 0; i < this.sequenceUVs.length; i++)
+		{
+			this.sequenceUVs[i++] *= image.width;
+			this.sequenceUVs[i] *= image.height;
+		}
+
+		_paint = new ui.Paint()..shader = new ui.ImageShader((actor as FlutterActor).images[textureIndex], ui.TileMode.clamp, ui.TileMode.clamp, _identityMatrix);
 		_paint.isAntiAlias = true;
 
 	}
@@ -59,12 +75,29 @@ class FlutterActorImage extends ActorImage
 		//Float32List test = new Float32List.fromList([64.0, 32.0, 0.0, 224.0, 128.0, 224.0]);
 		//Int32List colorTest = new Int32List.fromList([const ui.Color.fromARGB(255, 0, 255, 0).value, const ui.Color.fromARGB(255, 0, 255, 0).value, const ui.Color.fromARGB(255, 0, 255, 0).value]);
 		//_canvasVertices = new ui.Vertices.raw(ui.VertexMode.triangles, test, colors:colorTest /*textureCoordinates: _uvBuffer, indices: _indices*/);
+		int uvOffset;
+
+		if(this.sequenceUVs != null)
+		{
+			int framesCount = this.sequenceFrames.length;
+			int currentFrame = this.sequenceFrame % framesCount;
+
+			SequenceFrame sf = this.sequenceFrames[currentFrame];
+			uvOffset = sf.offset;
+			textureIndex = sf.atlasIndex;
+
+			int uvStride = 8;
+			int uvRow = currentFrame * uvStride;
+			Iterable it = this.sequenceUVs.getRange(uvRow, uvRow + uvStride);
+			List uvList = new List.from(it);
+			_uvBuffer = new Float32List.fromList(uvList);
+		}
 		_canvasVertices = new ui.Vertices.raw(ui.VertexMode.triangles, _vertexBuffer, indices: _indices, textureCoordinates: _uvBuffer);
-		
 	}
 
 	draw(ui.Canvas canvas)
 	{
+		// TODO: prevent drawing if RenderCollapsed for NodeSolo
 		if(triangles == null)
 		{
 			return;
@@ -94,12 +127,12 @@ class FlutterActor extends Actor
 		super.load(data);
 
 		List<Future<ui.Codec>> waitList = new List<Future<ui.Codec>>();
-		_images = new List<ui.Image>(texturesUsed);
+		_images = new List<ui.Image>(this.texturesUsed);
 
-		for(int i = 0; i < texturesUsed; i++)
+		for(int i = 0; i < this.texturesUsed; i++)
 		{
 			String atlasFilename;
-			if(texturesUsed == 1)
+			if(this.texturesUsed == 1)
 			{
 				atlasFilename = filename + ".png";
 			}

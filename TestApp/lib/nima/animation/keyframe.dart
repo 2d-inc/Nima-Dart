@@ -766,7 +766,12 @@ class KeyFrameSequence extends KeyFrameNumeric
 
 	void setValue(ActorComponent component, double value, double mix)
 	{
-		// ActorNode node = component as ActorNode;
-		// node.rotation = node.rotation * (1.0 - mix) + value * mix;
+		ActorImage node = component as ActorImage;
+		 int frameIndex = value.floor() % node.sequenceFrames.length;
+		 if(frameIndex < 0)
+		 {
+				frameIndex += node.sequenceFrames.length;
+		 }
+		 node.sequenceFrame = frameIndex;
 	}
 }
