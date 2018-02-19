@@ -72,7 +72,7 @@ class FlutterActorImage extends ActorImage
 		{
 			return;
 		}
-		updateVertexPositionBuffer(_vertexBuffer, true);
+		updateVertexPositionBuffer(_vertexBuffer, false);
 		
 
 		//Float32List test = new Float32List.fromList([64.0, 32.0, 0.0, 224.0, 128.0, 224.0]);
