@@ -76,11 +76,11 @@ void beginFrame(Duration timeStamp)
 void main() 
 {
 	actor = new FlutterActor();
-	actor.loadFromBundle("assets/sequence").then(
+	actor.loadFromBundle("assets/Evolution").then(
 		(bool success)
 		{
 			// animation = actor.getAnimation("Run");
-			animation = actor.getAnimation("Sequence");
+			animation = actor.getAnimation("shoot");
 			ui.window.onBeginFrame = beginFrame;
 			ui.window.scheduleFrame();
 		}
