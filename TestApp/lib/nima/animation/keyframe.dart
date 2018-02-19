@@ -6,6 +6,7 @@ import "../actor_bone_base.dart";
 import "../actor_constraint.dart";
 import "../actor_image.dart";
 import "../actor.dart";
+import "../actor_node_solo.dart";
 import "../math/mat2d.dart";
 import "dart:collection";
 import "dart:typed_data";
@@ -747,8 +748,8 @@ class KeyFrameActiveChild extends KeyFrame
 
 	void apply(ActorComponent component, double mix)
 	{
-		// ActorNodeSolo soloNode = component as ActorNodeSolo;
-		// soloNode.activeChildIndex = _value;
+		ActorNodeSolo soloNode = component as ActorNodeSolo;
+		soloNode.activeChildIndex = _value;
 	}
 }
 

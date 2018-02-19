@@ -2,6 +2,7 @@ import "dart:typed_data";
 import "actor_component.dart";
 import "actor_event.dart";
 import "actor_node.dart";
+import "actor_node_solo.dart";
 import "actor_bone.dart";
 import "actor_root_bone.dart";
 import "actor_jelly_bone.dart";
@@ -500,7 +501,7 @@ class Actor
 					break;
 
 				case BlockTypes.ActorNodeSolo:
-					//component = ActorNodeSolo.Read(this, nodeBlock);
+					component = ActorNodeSolo.read(this, nodeBlock, null);
 					break;
 
 				case BlockTypes.ActorJellyBone:

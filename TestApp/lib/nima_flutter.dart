@@ -100,8 +100,7 @@ class FlutterActorImage extends ActorImage
 
 	draw(ui.Canvas canvas)
 	{
-		// TODO: prevent drawing if RenderCollapsed for NodeSolo
-		if(triangles == null)
+		if(triangles == null || this.renderCollapsed)
 		{
 			return;
 		}
