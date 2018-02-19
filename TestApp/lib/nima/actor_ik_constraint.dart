@@ -60,12 +60,12 @@ class ActorIKConstraint extends ActorTargetedConstraint
 
 		// Initialize solver.
 		ActorBone start = _influencedBones[0].bone;
-		ActorBone end = _influencedBones[_influencedBones.length-1].bone;
+		ActorNode end = _influencedBones[_influencedBones.length-1].bone;
 		int count = 0;
 		while(end != null && end != start.parent)
 		{
 			count++;
-			end = end.parent as ActorBone;
+			end = end.parent;
 		}
 
 		bool allIn = count < 3;
@@ -82,14 +82,14 @@ class ActorIKConstraint extends ActorTargetedConstraint
 			bc.parentWorldInverse = new Mat2D();
 			bc.index = idx;
 			_fkChain[idx--] = bc;
-			end = end.parent as ActorBone;
+			end = end.parent;
 		}
 
 		// Make sure bones are good.
 		_boneData = new List<BoneChain>();
 		for(InfluencedBone bone in _influencedBones)
 		{
-			BoneChain item = _fkChain.firstWhere((chainItem) => chainItem.bone == bone.bone);
+			BoneChain item = _fkChain.firstWhere((chainItem) => chainItem.bone == bone.bone, orElse: () => null);
 			if(item == null)
 			{
 				print("Bone not in chain: " + bone.bone.name);
@@ -138,7 +138,7 @@ class ActorIKConstraint extends ActorTargetedConstraint
 			ActorBone bone = fk.bone;
 			for(ActorNode node in bone.children)
 			{
-				BoneChain item = _fkChain.firstWhere((chainItem) => chainItem.bone == node);
+				BoneChain item = _fkChain.firstWhere((chainItem) => chainItem.bone == node, orElse: () => null);
 				if(item != null)
 				{
 					// node is in the FK chain.

@@ -52,10 +52,13 @@ class FlutterActorImage extends ActorImage
 			idx += 2;
 		}
 
-		for(int i = 0; i < this.sequenceUVs.length; i++)
+		if(this.sequenceUVs != null)
 		{
-			this.sequenceUVs[i++] *= image.width;
-			this.sequenceUVs[i] *= image.height;
+			for(int i = 0; i < this.sequenceUVs.length; i++)
+			{
+				this.sequenceUVs[i++] *= image.width;
+				this.sequenceUVs[i] *= image.height;
+			}
 		}
 
 		_paint = new ui.Paint()..shader = new ui.ImageShader((actor as FlutterActor).images[textureIndex], ui.TileMode.clamp, ui.TileMode.clamp, _identityMatrix);
