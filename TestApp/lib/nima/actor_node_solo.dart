@@ -61,4 +61,10 @@ class ActorNodeSolo extends ActorNode
 		return node;
 	}
 
+	void completeResolve()
+	{
+		super.completeResolve();
+		this.setActiveChildIndex(this.activeChildIndex);
+	}
+
 }
