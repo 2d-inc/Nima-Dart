@@ -38,7 +38,6 @@ class FlutterActorImage extends ActorImage
 		_vertexBuffer = makeVertexPositionBuffer();
 		_uvBuffer = makeVertexUVBuffer();
 		_indices = new Int32List.fromList(triangles); // nima runtime loads 16 bit indices
-		// TODO: this will need to call again when image sequences are supported in the dart nima runtime.
 		updateVertexUVBuffer(_uvBuffer);
 		int count = vertexCount;
 		int idx = 0;
@@ -100,10 +99,12 @@ class FlutterActorImage extends ActorImage
 
 	draw(ui.Canvas canvas)
 	{
-		if(triangles == null || this.renderCollapsed)
+		if(triangles == null || this.renderCollapsed || opacity <= 0)
 		{
 			return;
 		}
+		int alpha = (this.renderOpacity * 255).toInt();
+		_paint.color = _paint.color.withAlpha(alpha);
 		canvas.drawVertices(_canvasVertices, ui.BlendMode.srcOver, _paint);
 	}
 }
