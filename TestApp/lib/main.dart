@@ -12,12 +12,51 @@ ActorAnimation animation;
 
 double lastFrameTime = 0.0;
 Vec2D screenTouch = null;
+Vec2D initialPosition = null;
+Vec2D targetPosition = null;
+ActorNode ikTarget = null;
+double interpolationMu = 0.0;
+double epsilon = 5.0; 
+double delta = 2.5;
+var interpolator = null;
+
+double lerp(double a, double b, double mu)
+{
+	return (1-mu)*a + mu*b;
+}
+double cosine(double a, double b, double mu)
+{
+	// double mu2;
+	// mu2 = (1-cos(mu*PI))/2;
+	// double ret = a*(1-mu2) + b*mu2;
+	double ret = lerp(a, b, (1-cos(mu*PI))/2);
+	return ret;
+}
+
+double acceleration(double a, double b, double mu)
+{
+	double ret = lerp(a,b,pow(mu,2));
+	return ret;
+}
+
+double deceleration(double a, double b, double mu)
+{
+	double ret = lerp(a, b, 1-pow(1-mu, 2));
+	return ret;
+}
+
+double smoothStep(double a, double b, double mu)
+{
+	double ret = lerp(a,b,pow(mu, 2)*(3-2*mu));
+	return ret;
+}
+
 void pointerData(ui.PointerDataPacket pointerDataPacket)
 {
 	if(pointerDataPacket.data.length > 0)
 	{
 		ui.PointerData data = pointerDataPacket.data[0];
-		
+		initialPosition = new Vec2D.fromValues(ikTarget.x, ikTarget.y);
 		screenTouch = new Vec2D.fromValues(data.physicalX, data.physicalY);
 	}
 }
@@ -34,7 +73,7 @@ void beginFrame(Duration timeStamp)
 		return;
 	}
 	
-	ActorNode ikTarget = actor.getNode("ctrl_shoot");
+	ikTarget = actor.getNode("ctrl_shoot");
 	/*if(ikTarget != null)
 	{
 		ikTarget.x = sin(t)*100.0;
@@ -54,17 +93,32 @@ void beginFrame(Duration timeStamp)
 	if(Mat2D.invert(inverseViewTransform, viewTransform))
 	{
 		Mat2D inverseTargetWorld = new Mat2D();
+		if(targetPosition != null && (targetPosition[0] - ikTarget.x).abs() < epsilon && (targetPosition[1] - ikTarget.y).abs() < epsilon)
+		{
+			targetPosition = null; // Reached the target
+		}
+		else if(targetPosition != null)
+		{
+			print("INTERPOLATING ${interpolator}");
+			ikTarget.x = interpolator(ikTarget.x, targetPosition[0], min(1.0, elapsed*delta));
+			ikTarget.y = interpolator(ikTarget.y, targetPosition[1], min(1.0, elapsed*delta));
+		}
+
 		if(screenTouch != null && Mat2D.invert(inverseTargetWorld, ikTarget.parent.worldTransform))
 		{
 			Vec2D screenCoord = new Vec2D.fromValues(screenTouch[0]/pixelRatio, (ui.window.physicalSize.height - screenTouch[1])/pixelRatio);
+			screenTouch = null;
 			//Vec2D worldTouch = new Vec2D.fromValues(screenTouch[0] * scale + paintBounds.width / 2.0, screenTouch[1] * -scale + paintBounds.height / 2.0);
 			Vec2D worldTouch = new Vec2D.fromValues((screenCoord[0] - paintBounds.width / 2.0) / scale, (screenCoord[1] - paintBounds.height / 2.0) / scale);
 			//Vec2D worldTouch = Vec2D.transformMat2D(new Vec2D(), screenTouch, inverseViewTransform);
 			Vec2D localPos = Vec2D.transformMat2D(new Vec2D(), worldTouch, inverseTargetWorld);
 			//ikTarget.translation = localPos;
-			ikTarget.x = localPos[0];
-			ikTarget.y = localPos[1];
+			// ikTarget.x = localPos[0];
+			// ikTarget.y = localPos[1];
 			//print(localPos[0].toString() + " " + localPos[1].toString() + " | " + worldTouch[0].toString() + " " + worldTouch[1].toString());
+			targetPosition = localPos;
+			ikTarget.x = lerp(ikTarget.x, targetPosition[0], min(1.0, elapsed*delta));
+			ikTarget.y = lerp(ikTarget.y, targetPosition[1], min(1.0, elapsed*delta));
 		}
 	}
 	
@@ -123,6 +177,7 @@ void beginFrame(Duration timeStamp)
 
 void main() 
 {
+	interpolator = deceleration;
 	actor = new FlutterActor();
 	actor.loadFromBundle("assets/Evolution").then(
 		(bool success)
