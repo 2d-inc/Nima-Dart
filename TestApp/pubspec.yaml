@@ -27,13 +27,32 @@ flutter:
   uses-material-design: true
 
   assets:
+    - assets/Evolution.png
     - assets/Wolf.nima
     - assets/Wolf.png
     - assets/sequence.nima
-    - assets/sequence0.png
-    - assets/sequence1.png
+    - assets/Level_1/Level_1_0001s_0000_Shadow_Trees_B.png
+    - assets/Level_1/Level_1_0003s_0001_Stone_5.png
+    - assets/Level_1/Level_1_0002s_0001_Crak_2.png
+    - assets/Level_1/Level_1_0003s_0004_Stone_4.png
+    - assets/Level_1/Level_1_0000s_0003_Trees_Left_B.png
+    - assets/Level_1/Level_1_0000s_0001_Trees_Right_B.png
+    - assets/Level_1/Level_1_0004s_0001_Floor_A.jpg
+    - assets/Level_1/Level_1_0000s_0000_Trees_Right_A.png
+    - assets/Level_1/Level_1_0000s_0002_Trees_Left_A.png
+    - assets/Level_1/Level_1_0003s_0002_Stone_7.png
+    - assets/Level_1/Level_1_0002s_0003_Crack_3.png
+    - assets/Level_1/Level_1_0003s_0005_Stone_1.png
+    - assets/Level_1/Level_1_0002s_0000_Crack_1.png
+    - assets/Level_1/Level_1_0003s_0006_Stone_2.png
+    - assets/Level_1/Level_1_0004s_0000_Floor_B.jpg
+    - assets/Level_1/Level_1_0001s_0001_Shadow_trees_A.png
+    - assets/Level_1/Level_1_0002s_0002_Crak_4.png
+    - assets/Level_1/Level_1_0003s_0003_Stone_3.png
+    - assets/Level_1/Level_1_0003s_0000_Stoen_6.png
     - assets/Evolution.nima
-    - assets/Evolution.png
+    - assets/sequence1.png
+    - assets/sequence0.png
   # To add assets to your application, add an assets section, like this:
   # assets:
   #  - images/a_dot_burr.jpeg

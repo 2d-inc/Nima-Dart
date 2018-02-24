@@ -6,7 +6,10 @@ import "dart:typed_data";
 import "dart:math";
 import "nima/math/vec2d.dart";
 import "nima/math/mat2d.dart";
+import "level.dart";
+import "level_1.dart";
 
+Level currentLevel;
 FlutterActor actor;
 ActorAnimation animation;
 
@@ -55,9 +58,10 @@ void pointerData(ui.PointerDataPacket pointerDataPacket)
 {
 	if(pointerDataPacket.data.length > 0)
 	{
-		ui.PointerData data = pointerDataPacket.data[0];
-		initialPosition = new Vec2D.fromValues(ikTarget.x, ikTarget.y);
-		screenTouch = new Vec2D.fromValues(data.physicalX, data.physicalY);
+		// ui.PointerData data = pointerDataPacket.data[0];
+		// initialPosition = new Vec2D.fromValues(ikTarget.x, ikTarget.y);
+		// screenTouch = new Vec2D.fromValues(data.physicalX, data.physicalY);
+		currentLevel.onPointerData(pointerDataPacket.data);
 	}
 }
 void beginFrame(Duration timeStamp) 
@@ -72,12 +76,8 @@ void beginFrame(Duration timeStamp)
 		ui.window.scheduleFrame();
 		return;
 	}
-	
+	/*
 	ikTarget = actor.getNode("ctrl_shoot");
-	/*if(ikTarget != null)
-	{
-		ikTarget.x = sin(t)*100.0;
-	}*/
 	double scale = 1.0;
 	double pixelRatio = 1.0;//
 	final ui.Rect paintBounds = ui.Offset.zero & (ui.window.physicalSize / pixelRatio);
@@ -128,12 +128,20 @@ void beginFrame(Duration timeStamp)
 	// Harcoding animation time as updating the nima file seemed to still use the previously cached one. Or I copied the wrong file with the old 10 seconds in it :)
 	// double duration = 13.0/24.0;
 	double duration = animation.duration;
-	animation.apply(t%duration/*animation.duration*/, actor, 1.0);
-
+	animation.apply(t%duration, actor, 1.0);
+	*/
+	
+	double pixelRatio = 1.0;
+	final ui.Rect paintBounds = ui.Offset.zero & (ui.window.physicalSize / pixelRatio);
+	currentLevel.setSize(paintBounds.width, paintBounds.height);
 	
 	final ui.PictureRecorder recorder = new ui.PictureRecorder();
 	final ui.Canvas canvas = new ui.Canvas(recorder, paintBounds);
 
+
+	currentLevel.advance(elapsed);
+	currentLevel.render(canvas);
+/*
 	// "clearing" the screen with a background color
 	canvas.drawRect(new ui.Rect.fromLTRB(0.0, 0.0, ui.window.physicalSize.width, ui.window.physicalSize.height),
 					new ui.Paint()..color = new ui.Color.fromARGB(255, 125, 152, 165));
@@ -150,7 +158,7 @@ void beginFrame(Duration timeStamp)
 	//        -1
 	canvas.scale(scale, -scale);
 
-	actor.draw(canvas);
+	actor.draw(canvas);*/
 
 	final ui.Picture picture = recorder.endRecording();
 
@@ -177,6 +185,27 @@ void beginFrame(Duration timeStamp)
 
 void main() 
 {
+	currentLevel = new Level_1();
+	print("loading...");
+	currentLevel.loadFromBundle().then(
+		(bool success)
+		{
+			if(!success)
+			{
+				print("Failed to load level, we die.");
+				return;
+			}
+			print("initializing...");
+			currentLevel.initialize();
+
+			// animation = actor.getAnimation("Run");
+			// animation = actor.getAnimation("shoot");
+			ui.window.onBeginFrame = beginFrame;
+			ui.window.scheduleFrame();
+			ui.window.onPointerDataPacket = pointerData;
+		}
+	);
+	/*
 	interpolator = deceleration;
 	actor = new FlutterActor();
 	actor.loadFromBundle("assets/Evolution").then(
@@ -188,5 +217,5 @@ void main()
 			ui.window.scheduleFrame();
 			ui.window.onPointerDataPacket = pointerData;
 		}
-	);
+	);*/
 }
