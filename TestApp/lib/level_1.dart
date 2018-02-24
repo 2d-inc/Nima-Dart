@@ -27,10 +27,14 @@ class Level_1 extends Level
 
 	FlutterActor _heroActor;
 	ActorAnimation _heroAnimation;
+	ActorAnimation _jumpAnimation;
 	double _heroAnimationTime = 0.0;
+	double _jumpAnimationTime = 0.0;
 	ActorNode _ikTarget;
 
 	Vec2D _screenTouch;
+	double _screenPressure = 0.0;
+	bool _isJumping = false;
 
 	Level_1()
 	{
@@ -49,7 +53,8 @@ class Level_1 extends Level
 	{
 		// Place level objects.
 		_heroActor = _heroAsset.actor; // In other cases we'll want to extend the actor to be instanceable so we can have multiple copies in different states. For now, this is sufficient.
-		_heroAnimation = _heroActor.getAnimation("shoot");
+		_heroAnimation = _heroActor.getAnimation("run");
+		_jumpAnimation = _heroActor.getAnimation("jump");
 		_ikTarget = _heroActor.getNode("ctrl_shoot");
 	}
 	
@@ -80,7 +85,7 @@ class Level_1 extends Level
 		Vec2D cameraPosition = cameraTranslation;		
 		Vec2D.copy(cameraPosition, _heroActor.root.translation);
 		cameraPosition[1] -= viewportHeight/3.0 / cameraZoom;
-		const double MaxX = 450.0;
+		const double MaxX = 440.0;
 		if(cameraPosition[0] > MaxX)
 		{
 			cameraPosition[0] = MaxX;
@@ -91,9 +96,25 @@ class Level_1 extends Level
 		}
 		setCamera(cameraPosition, cameraZoom);
 
-		//_heroActor.root.y = 0.0;
-		double duration = _heroAnimation.duration;
-		_heroAnimation.apply(_heroAnimationTime%duration, _heroActor, 1.0);
+		if(_screenPressure > 2.0 && !_isJumping)
+		{
+			_jumpAnimationTime = 0.0;
+			_isJumping = true;
+		}
+		if(_isJumping)
+		{
+			_jumpAnimation.apply(_jumpAnimationTime, _heroActor, 1.0);
+			_jumpAnimationTime += elapsedSeconds;
+			if(_jumpAnimationTime >= _jumpAnimation.duration)
+			{
+				_isJumping = false;
+			}
+		}
+		else
+		{
+			double duration = _heroAnimation.duration;
+			_heroAnimation.apply(_heroAnimationTime%duration, _heroActor, 1.0);
+		}
 
 		Mat2D inverseTargetWorld = new Mat2D();
 		if(_screenTouch != null && Mat2D.invert(inverseTargetWorld, _ikTarget.parent.worldTransform))
@@ -131,19 +152,21 @@ class Level_1 extends Level
 		_heroActor.draw(canvas);
 
 		// Left Shadows
-		// {
-		// 	canvas.save();
-		// 	const double shadowWidth = 774.0;
-		// 	canvas.translate(-HalfLevelWidth+shadowWidth, (idx*LevelWidth).ceilToDouble());
-		// 	canvas.scale(-1.0, 1.0);
-		// 	for(int i = 0; i < 4; i++)
-		// 	{
-		// 		canvas.drawRect(new ui.Rect.fromLTWH(0.0, 0.0, shadowWidth, LevelWidth), (idx+i)%2 == 0 ? _treeShadowA.paint : _treeShadowB.paint);
-		// 		canvas.translate(0.0, -LevelWidth);
-		// 	}
+		{
+			canvas.save();
+			const double shadowWidth = 774.0;
+			canvas.translate(-HalfLevelWidth+shadowWidth-400, (idx*LevelWidth).ceilToDouble());
+			canvas.scale(-1.0, 1.0);
+			for(int i = 0; i < 4; i++)
+			{
+				ui.Paint p = (idx+i)%2 == 0 ? _treeShadowA.paint : _treeShadowB.paint;
+				//p.color = new ui.Color.fromARGB(100, 255, 255, 255);
+				canvas.drawRect(new ui.Rect.fromLTWH(0.0, 0.0, shadowWidth, LevelWidth), (idx+i)%2 == 0 ? _treeShadowA.paint : _treeShadowB.paint);
+				canvas.translate(0.0, -LevelWidth);
+			}
 
-		// 	canvas.restore();
-		// }
+			canvas.restore();
+		}
 
 		// Right Shadows
 		{
@@ -152,7 +175,10 @@ class Level_1 extends Level
 			canvas.translate(HalfLevelWidth-shadowWidth, (idx*LevelWidth).ceilToDouble());
 			for(int i = 0; i < 4; i++)
 			{
-				canvas.drawRect(new ui.Rect.fromLTWH(0.0, 0.0, shadowWidth, LevelWidth), (idx+i)%2 == 0 ? _treeShadowB.paint : _treeShadowA.paint);
+				ui.Paint p = (idx+i)%2 == 0 ? _treeShadowA.paint : _treeShadowB.paint;
+				//p.color = new ui.Color.fromARGB(255, 255, 255, 255);
+
+				canvas.drawRect(new ui.Rect.fromLTWH(0.0, 0.0, shadowWidth, LevelWidth), p);
 				canvas.translate(0.0, -LevelWidth);
 			}
 
@@ -207,6 +233,7 @@ class Level_1 extends Level
 		if(data.length > 0)
 		{
 			_screenTouch = new Vec2D.fromValues(data[0].physicalX, data[0].physicalY);
+			_screenPressure = data[0].pressure;
 		}
 	}
 }
