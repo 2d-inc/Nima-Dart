@@ -115,6 +115,7 @@ class Level_1 extends Level
 			if(_jumpAnimationTime >= _jumpAnimation.duration)
 			{
 				_isJumping = false;
+				_heroAnimationTime = 0.0;
 			}
 		}
 		else
