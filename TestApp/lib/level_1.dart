@@ -64,10 +64,18 @@ class Level_1 extends Level
 		//_heroActor.root.y = 700.0;
 		// Harcoding animation time as updating the nima file seemed to still use the previously cached one. Or I copied the wrong file with the old 10 seconds in it :)
 		// double duration = 13.0/24.0;
+		//elapsedSeconds *= 0.5;
 		_heroAnimationTime += elapsedSeconds;
 
+		
+		// sync motion phase with walk
+		//double phase = 35.0/60.0;
+		//double speedModifier = 0.6+0.4*sin(_heroAnimationTime/phase*PI*2).abs();//0.6+1.0-min((dx.abs() - 300.0)/1000.0, 1.0);
+		double speedModifier = 1.0;
+
+
 		double dx = _ikTarget.worldTransform[4] - _heroActor.root.x;
-		_heroActor.root.x += dx * elapsedSeconds;
+		_heroActor.root.x += dx * elapsedSeconds * speedModifier;
 		if(_heroActor.root.x > HalfLevelWidth)
 		{
 			_heroActor.root.x = HalfLevelWidth;
@@ -77,9 +85,8 @@ class Level_1 extends Level
 			_heroActor.root.x = -HalfLevelWidth;
 		}
 
-		double speedModifier = 0.6+1.0-min((dx.abs() - 300.0)/1000.0, 1.0);
 
-		_heroActor.root.y -= elapsedSeconds*455.0*speedModifier;
+		_heroActor.root.y -= elapsedSeconds*700.0*speedModifier;//*speedModifier;
 	
 		
 		Vec2D cameraPosition = cameraTranslation;		
@@ -133,6 +140,7 @@ class Level_1 extends Level
 			_ikTarget.x = localPos[0];//lerp(_ikTarget.x, targetPosition[0], min(1.0, elapsed*delta));
 			_ikTarget.y = localPos[1];//lerp(_ikTarget.y, targetPosition[1], min(1.0, elapsed*delta));
 		}
+		//print("ELAPSED $elapsedSeconds");
 		_heroActor.advance(elapsedSeconds);
 	}
 	

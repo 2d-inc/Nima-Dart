@@ -68,14 +68,17 @@ void beginFrame(Duration timeStamp)
 {
 	final double t = timeStamp.inMicroseconds / Duration.MICROSECONDS_PER_MILLISECOND / 1000.0;
 	double elapsed = t - lastFrameTime;
-	lastFrameTime = t;
+	
 	if(lastFrameTime == 0)
 	{
+		
 		// hack to circumvent not being enable to initialize lastFrameTime to a starting timeStamp (maybe it's just the date?)
 		// Is the FrameCallback supposed to pass elapsed time since last frame? timeStamp seems to behave more like a date
 		ui.window.scheduleFrame();
+		lastFrameTime = t;
 		return;
 	}
+	lastFrameTime = t;
 	/*
 	ikTarget = actor.getNode("ctrl_shoot");
 	double scale = 1.0;
